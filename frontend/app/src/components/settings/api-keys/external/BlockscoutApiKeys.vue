@@ -5,8 +5,6 @@ const { t } = useI18n();
 const { keys } = useExternalApiKeys(t);
 const tabIndex = ref<number>(0);
 const route = useRoute();
-const serviceKeyCardRef = ref<InstanceType<typeof ServiceKeyCard>>();
-
 const { getChainName } = useSupportedChains();
 
 const supportedChains = computed(() => {
@@ -21,33 +19,18 @@ const supportedChains = computed(() => {
   });
 });
 
-function setActiveTab(hash: string) {
+watch(route, ({ hash }) => {
   const evmChain = hash?.slice(1);
   const chains = get(supportedChains);
   const index = chains.findIndex(x => x.evmChainName === evmChain);
-  nextTick(() => {
-    if (index >= 0) {
-      const serviceKey = get(serviceKeyCardRef);
-      if (serviceKey) {
-        serviceKey.setOpen(true);
-      }
-      set(tabIndex, index);
-    }
-  });
-}
-
-watch(route, ({ hash }) => {
-  setActiveTab(hash);
-});
-
-onMounted(() => {
-  setActiveTab(route.hash);
+  if (index >= 0) {
+    set(tabIndex, index);
+  }
 });
 </script>
 
 <template>
   <ServiceKeyCard
-    ref="serviceKeyCardRef"
     hide-action
     :title="t('external_services.blockscout.title')"
     :subtitle="t('external_services.blockscout.description')"
